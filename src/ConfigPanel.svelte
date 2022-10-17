@@ -47,35 +47,41 @@
     let currentTimingFunction: TimingFunctionDropDownElement = timingFunctions[0];
 </script>
 
-<div class="centered-col bg-stone-300 p-6 rounded gap-3 w-1/2 max-w-[600px]">
-    <h1 class="text-2xl mb-4">Configuration</h1>
-    <label class="self-start">
-        Durée :
-        <input class="ml-2" type=number bind:value={duration} on:change={(e) => setDuration(duration)} min=10 max=90>
-        <input class="ml-2 bg-stone-100 rounded-lg appearance-none cursor-pointer h-2" type=range bind:value={duration} on:change={() => setDuration(duration)} min=10 max=90>
-    </label>
-
-    <label class="self-start">
-
-        Gestion du temps :
-        <select class="ml-2" bind:value={currentTimingFunction} on:change={() =>
-            setTimingFunction(currentTimingFunction.timingFunction)}>
-            {#each timingFunctions as tf}
-                <option value={tf}>
-                    {tf.name}
-                </option>
-            {/each}
-        </select>
-    </label>
-
-    <div class="flex-wrap mt-2 italic self-start">
-        {currentTimingFunction.description}
+<div class="full relative center-child">
+    <div class="centered-col bg-stone-300 p-6 rounded-lg gap-3 w-1/2 max-w-[600px]">
+        <h1 class="text-2xl mb-4">Configuration</h1>
+        <label class="self-start">
+            Durée :
+            <input class="ml-2" type=number bind:value={duration} on:change={(e) => setDuration(duration)} min=10 max=90>
+            <input class="ml-2 bg-stone-100 rounded-lg appearance-none cursor-pointer h-2" type=range bind:value={duration} on:change={() => setDuration(duration)} min=10 max=90>
+        </label>
+    
+        <label class="self-start">
+    
+            Gestion du temps :
+            <select class="ml-2" bind:value={currentTimingFunction} on:change={() =>
+                setTimingFunction(currentTimingFunction.timingFunction)}>
+                {#each timingFunctions as tf}
+                    <option value={tf}>
+                        {tf.name}
+                    </option>
+                {/each}
+            </select>
+        </label>
+    
+        <div class="flex-wrap mt-2 italic self-start">
+            {currentTimingFunction.description}
+        </div>
+    
+        <button
+            class="btn mt-4"
+            on:click={start}
+        >
+            Start
+        </button>
     </div>
 
-    <button
-        class="btn mt-4"
-        on:click={start}
-    >
-        Start
-    </button>
+    <div class="w-full absolute left-0 bottom-0 text-stone-100 text-center py-2 bg-stone-800/50">
+        ❤️ Réalisé avec amour par <a class="font-bold italic hover:cursor-pointer" href="https://www.plml.fr" target="_blank" rel="noreferrer">Pierre Lemmel</a> ❤️
+    </div>
 </div>
