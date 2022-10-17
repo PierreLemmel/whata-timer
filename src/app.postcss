@@ -9,7 +9,12 @@ body {
 }
 
 .btn {
-    @apply rounded-lg border-amber-600 border-2 px-6;
+    @apply rounded-lg border-stone-600 bg-stone-100 border-2 px-6;
+    @apply transition-all duration-300;
+
+    &:hover {
+        @apply filter brightness-75;
+    }
 }
 
 #app {
@@ -33,6 +38,6 @@ body {
 }
 
 @font-face {
-  font-family: "DS-DIGI";
-  src: url("../public/DS-DIGI.ttf");
+    font-family: "DS-DIGI";
+    src: url("../public/DS-DIGI.ttf");
 }
