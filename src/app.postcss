@@ -1,0 +1,38 @@
+/* Write your global styles here, in PostCSS syntax */
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+    @apply w-screen h-screen overflow-hidden;
+}
+
+.btn {
+    @apply rounded-lg border-amber-600 border-2 px-6;
+}
+
+#app {
+    @apply full;
+}
+
+.center-child {
+    @apply flex flex-row items-center justify-center;
+}
+
+.centered-row {
+    @apply flex flex-row items-center justify-center;
+}
+
+.centered-col {
+    @apply flex flex-col items-center justify-center;
+}
+
+.full {
+    @apply w-full h-full;
+}
+
+@font-face {
+  font-family: "DS-DIGI";
+  src: url("../public/DS-DIGI.ttf");
+}
