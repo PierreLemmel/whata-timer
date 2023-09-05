@@ -1,0 +1,1 @@
+export const leadingZero = (nb: number) => nb < 10 ? "0" + nb : nb.toString();

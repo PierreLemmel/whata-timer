@@ -1,50 +1,32 @@
-<script context="module" lang="ts">
-    interface TimingFunctionDropDownElement {
-        readonly name: string;
-        readonly timingFunction: TimingFunction;
-        readonly description: string;
-    }
-    
-    const timingFunctions: TimingFunctionDropDownElement[] = [
-        {
-            name: "Homogène",
-            timingFunction: (remainingMinutes, duration, decreaseThreshold) => 1,
-            description: "Toutes les minutes affichées font la même durée d'une minute en temps réel"
-        },
-        {
-            name: "Linéaire",
-            timingFunction: (remainingMinutes, duration, decreaseThreshold) => (remainingMinutes < decreaseThreshold ? 55 : 60) / 60,
-            description: "A partir du seuil de diminution, toutes les minutes affichées durent 55 secondes en temps réel"
-        },
-        {
-            name: "Accélérée",
-            timingFunction: (remainingMinutes, duration, decreaseThreshold) => {
-
-                if (remainingMinutes < decreaseThreshold) {
-                    const a = remainingMinutes / (duration - decreaseThreshold);
-                    return (a * 60 + (1-a) * 40) / 60;
-                }
-                else {
-                    return 1;
-                }
-                
-            },
-            description: "A partir du seuil de diminution, toutes les minutes sont de plus en plus courte jusqu'à un minimum de 30 secondes"
-        },
-    ];
-</script>
-
 <script lang="ts">
-    import type { TimingFunction } from "./App.svelte";
+    import { enumerateTimingFunctions, type TimingFunction } from "./App.svelte";
+
+    import { leadingZero } from "./utils";
 
     export let duration: number;
     export let setDuration: (duration: number) => void;
+
     export let decreaseThreshold: number;
     export let setDecreaseThreshold: (duration: number) => void;
+
     export let start: () => void;
+
+    export let timingFunction: TimingFunction;
     export let setTimingFunction: (tf: TimingFunction) => void;
     
-    let currentTimingFunction: TimingFunctionDropDownElement = timingFunctions[0];
+    let realtimeMinutes;
+    let realtimeSeconds;
+    $: {
+        let estimatedRealtimeInSeconds = 0;
+        for (let min = duration; min > 0; min--) {
+            const scaledSecond = timingFunction.function(min, duration, decreaseThreshold);
+            estimatedRealtimeInSeconds += 60 * scaledSecond;
+        }
+
+        realtimeMinutes = Math.floor(estimatedRealtimeInSeconds / 60);
+        realtimeSeconds = estimatedRealtimeInSeconds % 60;
+    }
+    
 </script>
 
 <div class="full relative center-child">
@@ -89,9 +71,12 @@
         <label class="self-start">
     
             Gestion du temps :
-            <select class="ml-2" bind:value={currentTimingFunction} on:change={() =>
-                setTimingFunction(currentTimingFunction.timingFunction)}>
-                {#each timingFunctions as tf}
+            <select
+                class="ml-2"
+                bind:value={timingFunction}
+                on:change={() =>setTimingFunction(timingFunction)}
+            >
+                {#each enumerateTimingFunctions() as tf}
                     <option value={tf}>
                         {tf.name}
                     </option>
@@ -100,9 +85,13 @@
         </label>
     
         <div class="flex-wrap mt-2 italic self-start">
-            {currentTimingFunction.description}
+            {timingFunction.description}
         </div>
-    
+
+        <div class="flex-wrap mt-2 italic self-start">
+            Durée temps réel : {leadingZero(realtimeMinutes)}:{leadingZero(realtimeSeconds)}
+        </div>
+
         <button
             class="btn mt-4"
             on:click={start}

@@ -1,6 +1,6 @@
 <script lang="ts">
-    import { onMount } from "svelte";
     import type { TimingFunction } from "./App.svelte";
+    import { leadingZero } from "./utils";
 
     export let duration: number;
     export let decreaseThreshold: number;
@@ -10,28 +10,31 @@
     let displayMinutes = 60;
     let displaySeconds = 0;
 
-    let displayString = "UNINITIALIZED";
+    
+    const formatTime = (minutes: number, seconds: number) => `${leadingZero(minutes)}:${leadingZero(seconds)}`.replaceAll("1", " 1");
+    let displayString = formatTime(displayMinutes, displaySeconds);
 
-    const leadingZero = (nb: number) => nb < 10 ? "0" + nb : nb.toString();
+    let timeout: NodeJS.Timeout | null = null;
+    let playing = false;
 
-    onMount(() => {
+    const start = () => {
 
+        stopTimer();
         let remainingSeconds = 60 * duration;
 
-        let timeout = null;
-        
         const startTimer = () => {
 
+            playing = true;
             const remainingMinutes = Math.floor(remainingSeconds / 60);
             displayMinutes = remainingMinutes;
             displaySeconds = remainingSeconds % 60;
 
-            displayString = `${leadingZero(displayMinutes)}:${leadingZero(displaySeconds)}`.replaceAll("1", " 1");
+            displayString = formatTime(displayMinutes, displaySeconds);
 
             if (remainingSeconds-- > 0) {
 
-                const nextDisplaySecondDuration = timingFunction(remainingMinutes, duration, decreaseThreshold);
-                timeout = setTimeout(startTimer, 1_000 * nextDisplaySecondDuration);
+                const nextScaledSecondDuration = timingFunction.function(remainingMinutes, duration, decreaseThreshold);
+                timeout = setTimeout(startTimer, 1_000 * nextScaledSecondDuration);
             }
             else {
                 timeout = null;
@@ -40,12 +43,15 @@
 
         startTimer();
 
-        return () => {
-            if (timeout) {
-                clearTimeout(timeout);
-            }
+    }
+
+    const stopTimer = () => {
+        if (timeout !== null) {
+            clearTimeout(timeout);
+            timeout = null;
+            playing = false;
         }
-    });
+    }
 </script>
 
 <svelte:window
@@ -57,8 +63,16 @@
 />
 
 <div class="full relative">
-    <div class="full center-child font-digi text-white text-[18rem] {displayString.startsWith(" 1") ? "ml-[4rem]" : ""}">
-        {displayString}
+    <div class="full flex flex-col items-center justify-center font-digi text-white">
+        <div class="text-[18rem] {displayString.startsWith(" 1") ? "ml-[4rem]" : ""}">{displayString}</div>
+        <button class="opacity-0 bg-stone-700 text-white hover:opacity-100 transition-all duration-300 hover:cursor-pointer min-w-[50%] p-6 text-center flex flex-col items-center justify-center gap-2"
+            on:click={() => playing ? stopTimer() : start()}>
+            {#if playing}
+                Arreter
+            {:else}
+                Demarrer
+            {/if}
+        </button>
     </div>
 
     <button
