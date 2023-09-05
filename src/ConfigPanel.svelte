@@ -8,22 +8,20 @@
     const timingFunctions: TimingFunctionDropDownElement[] = [
         {
             name: "Homogène",
-            timingFunction: (remainingMinutes, duration) => 1,
+            timingFunction: (remainingMinutes, duration, decreaseThreshold) => 1,
             description: "Toutes les minutes affichées font la même durée d'une minute en temps réel"
         },
         {
             name: "Linéaire",
-            timingFunction: (remainingMinutes, duration) => (remainingMinutes < duration / 2 ? 55 : 60) / 60,
-            description: "A partir de la moitié du temps, toutes les minutes affichées durent 55 secondes en temps réel"
+            timingFunction: (remainingMinutes, duration, decreaseThreshold) => (remainingMinutes < decreaseThreshold ? 55 : 60) / 60,
+            description: "A partir du seuil de diminution, toutes les minutes affichées durent 55 secondes en temps réel"
         },
         {
             name: "Accélérée",
-            timingFunction: (remainingMinutes, duration) => {
+            timingFunction: (remainingMinutes, duration, decreaseThreshold) => {
 
-                const halfDuration = duration / 2;
-
-                if (remainingMinutes < halfDuration) {
-                    const a = remainingMinutes / halfDuration;
+                if (remainingMinutes < decreaseThreshold) {
+                    const a = remainingMinutes / (duration - decreaseThreshold);
                     return (a * 60 + (1-a) * 40) / 60;
                 }
                 else {
@@ -31,7 +29,7 @@
                 }
                 
             },
-            description: "A partir de la moitié du temps, toutes les minutes sont de plus en plus courte jusqu'à un minimum de 30 secondes"
+            description: "A partir du seuil de diminution, toutes les minutes sont de plus en plus courte jusqu'à un minimum de 30 secondes"
         },
     ];
 </script>
@@ -41,6 +39,8 @@
 
     export let duration: number;
     export let setDuration: (duration: number) => void;
+    export let decreaseThreshold: number;
+    export let setDecreaseThreshold: (duration: number) => void;
     export let start: () => void;
     export let setTimingFunction: (tf: TimingFunction) => void;
     
@@ -52,10 +52,40 @@
         <h1 class="text-2xl mb-4">Configuration</h1>
         <label class="self-start">
             Durée :
-            <input class="ml-2" type=number bind:value={duration} on:change={(e) => setDuration(duration)} min=10 max=90>
-            <input class="ml-2 bg-stone-100 rounded-lg appearance-none cursor-pointer h-2" type=range bind:value={duration} on:change={() => setDuration(duration)} min=10 max=90>
+            <input class="ml-2"
+                type=number
+                bind:value={duration}
+                on:change={(e) => setDuration(duration)}
+                min=10
+                max=90
+            >
+            <input class="ml-2 bg-stone-100 rounded-lg appearance-none cursor-pointer h-2"
+                type=range
+                bind:value={duration}
+                on:change={() => setDuration(duration)}
+                min=10
+                max=90
+            >
         </label>
     
+        <label class="self-start">
+            Seuil de diminution :
+            <input class="ml-2"
+                type=number
+                bind:value={decreaseThreshold}
+                on:change={(e) => setDecreaseThreshold(duration)}
+                min=5
+                max={duration}
+            >
+            <input class="ml-2 bg-stone-100 rounded-lg appearance-none cursor-pointer h-2"
+                type=range
+                bind:value={decreaseThreshold}
+                on:change={() => setDecreaseThreshold(duration)}
+                min=10
+                max={duration}
+            >
+        </label>
+
         <label class="self-start">
     
             Gestion du temps :

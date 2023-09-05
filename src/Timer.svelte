@@ -3,6 +3,7 @@
     import type { TimingFunction } from "./App.svelte";
 
     export let duration: number;
+    export let decreaseThreshold: number;
     export let timingFunction: TimingFunction;
     export let stop: () => void;
 
@@ -29,7 +30,7 @@
 
             if (remainingSeconds-- > 0) {
 
-                const nextDisplaySecondDuration = timingFunction(remainingMinutes, duration);
+                const nextDisplaySecondDuration = timingFunction(remainingMinutes, duration, decreaseThreshold);
                 timeout = setTimeout(startTimer, 1_000 * nextDisplaySecondDuration);
             }
             else {

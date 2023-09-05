@@ -1,5 +1,5 @@
 <script context="module" lang="ts">
-    export type TimingFunction = (remainingMinutes: number, duration: number) => number;
+    export type TimingFunction = (remainingMinutes: number, duration: number, decreaseThreshold: number) => number;
 </script>
 
 <script lang="ts">
@@ -7,6 +7,7 @@
     import Timer from "./Timer.svelte";
 
     let duration: number = 60;
+    let decreaseThreshold: number = 30;
 
     let running = false;
 
@@ -17,14 +18,16 @@
 <main class="full center-child bg-stone-900">
     {#if running}
         <Timer
-            duration={duration}
-            timingFunction={timingFunction}
+            {duration}
+            {decreaseThreshold}
+            {timingFunction}
             stop={() => running = false}
         />
     {:else}
         <ConfigPanel
-            duration={duration}
+            {duration} {decreaseThreshold}
             setDuration={(val) => duration = val}
+            setDecreaseThreshold={(val) => decreaseThreshold = val}
             setTimingFunction={tf => timingFunction = tf}
             start={() => running = true}
         />
